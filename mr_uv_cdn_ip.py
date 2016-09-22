@@ -6,7 +6,7 @@ from ng_line_parser import NgLineParser
 
 import heapq
 
-class MRUVRrealIp(MRJob):
+class MRUVCdnIp(MRJob):
 
     ng_line_parser = NgLineParser()
 
@@ -32,7 +32,7 @@ class MRUVRrealIp(MRJob):
 
 
 def main():
-    MRUVRrealIp.run()
+    MRUVCdnIp.run()
 
 if __name__ == '__main__':
     main()
