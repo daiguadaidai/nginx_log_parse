@@ -20,7 +20,7 @@ class PDNgLogStat(object):
                     self.ng_line_parser.parse(line)
                     yield self.ng_line_parser.to_dict()
 
-                    if index > 10: break
+                    # if index > 10: break
 
     def _ip2num(self, ip):
         """用于IP转化为数字"""
