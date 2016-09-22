@@ -7,11 +7,18 @@ import argparse
 import os
 
 
-def filter_eff_file(files):
+def filter_eff_files(files):
     """过滤有效文件"""
     return [path for path in files if os.path.exists(path)]
 
-def get_eff_method_no_addr():
+def filter_eff_file(file):
+    """过滤有效文件"""
+    if os.path.exists(file):
+        return file
+    else:
+        return None
+
+def get_eff_methods_no_addr():
     """获得可以执行的方法 除了需要IP地址文件的方法"""
     methods = [
         'pv_day', # 统计每日 pv
@@ -25,19 +32,19 @@ def get_eff_method_no_addr():
 
     return methods
     
-def get_eff_method():
+def get_eff_methods():
     """获得可以执行的方法"""
-    methods = get_eff_method_no_addr()
+    methods = get_eff_methods_no_addr()
     methods.append('uv_cdn_ip_addr') # 统计 CDN IP 访问量 和 地址
     methods.append('uv_real_ip_addr') # 统计 用户真实 IP 访问量 和 地址
 
     return methods
 
-def filter_method_no_addr(methods):
-    pass
+def filter_methods_no_addr(methods):
+    return list(set(get_eff_methods_no_addr()).intersection(set(methods)))
 
 def filter_methods(methods):
-    pass
+    return list(set(get_eff_methods()).intersection(set(methods)))
 
 def main():
     parser = argparse.ArgumentParser(description='parse nginx log')
@@ -49,32 +56,34 @@ def main():
     parser.add_argument('-m', '--methods', required = True,
                         help = 'specified method to run')
     # ip 对应地址的 路径
-    parser.add_argument('-i', '--ip-addr-file',
+    parser.add_argument('-i', '--ipfile',
                         help = 'specified ip address file')
 
     # 解析并检查参数是否合法
     args = parser.parse_args()
 
     # 获取有效文件
-    files = filter_eff_file(args.files.split())
+    files = filter_eff_files(args.files.split())
+    area_ip_path = None
+    if args.ipfile:
+        area_ip_path = filter_eff_file(args.ipfile) # 判断ip文件是否可用
 
     # 获取需要运行的方法
     methods = args.methods.split()
 
-    # 过滤有效的执行方法
-    if ip-addr-file:
+    # 创建统计实例
+    pd_ng_log_stat = PDNgLogStat()
+    pd_ng_log_stat.load_data(files)
+
+    # 判断是是否有 ip文件 并加载相关执行方法
+    if area_ip_path:
         methods = filter_methods(methods) # 和所有方法过滤
+        pd_ng_log_stat.load_ip_addr(area_ip_path) # 加载IP文件
     else:
         methods = filter_methods_no_addr(methods) # 去除需要Ip文件的方法
 
-    
-    pd_ng_log_stat = PDNgLogStat()
-    pd_ng_log_stat.load_data
-    
-   
-    # 加载 ip 地址
-    area_ip_path = 'area_ip.csv'
-    pd_ng_log_stat.load_ip_addr(area_ip_path)
+    for method in methods:
+        print eval('pd_ng_log_stat.{method}()'.format(method = method))
 
 
 if __name__ == '__main__':
